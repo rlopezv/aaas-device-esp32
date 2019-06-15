@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.osx": {
+			"PATH": "/Users/ramon/.platformio/penv/bin:/Users/ramon/.platformio/penv:/Users/ramon/Library/Python/3.7/bin:/Users/ramon/desarrollo/node/bin:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/bin:~/desarrollo/apache-maven-3.3.3/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools",
+			"PLATFORMIO_CALLER": "vscode"
+		},
+		"files.associations": {
+			"system_error": "cpp"
+		}
+	}
+}
