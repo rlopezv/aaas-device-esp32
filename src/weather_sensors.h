@@ -16,8 +16,7 @@ public:
     float     temperature = 0;
     float     preasure = 0;
     float     luminosity = 0;
-    float     uv = 0;
-    float     ir = 0;
+    int     uv = 0;
     float     humidity = 0;
     int       rain = 0;
     void lora_message(char* outStr);
@@ -40,10 +39,12 @@ private:
     bool loggingEnabled = true;
     void readBME280(WeatherData *data);
     void readRainDetector(WeatherData *data);
-    void readSI1145(WeatherData *data);
+    void readVEML6070(WeatherData *data);
+    void readBH1750(WeatherData *data);
     bool initBME280();
     bool initRainDetector();
-    bool initSI1145();
+    bool initVEML6070();
+    bool initBH1750();
  
 };
 

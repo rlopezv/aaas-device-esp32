@@ -10,8 +10,8 @@
 #include "globals.h"
 
 
-#define WEATHER_SENSORS 0
-#define PLANT_SENSORS 1
+#define WEATHER_SENSORS 1
+#define PLANT_SENSORS 0
 
 #define PIN_SDA 21
 #define PIN_SCL 22
@@ -259,6 +259,7 @@ void send()
     Serial.printf("Next data sending in %03d seconds\r\n", remainingSeconds);
     Serial.printf("Next status sending in %03d seconds\r\n", remainingStatusSeconds);
   }
+  Serial.println("*****************");
 }
 
 void measureAndSend(osjob_t *j)
@@ -382,7 +383,7 @@ void onEvent(ev_t ev)
       messageSent(false);
     }
     // Schedule next transmission
-    // os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(TX_INTERVAL), do_send);
+    //os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(TX_INTERVAL), do_send);
     break;
   case EV_LOST_TSYNC:
     Serial.println(F("EV_LOST_TSYNC"));

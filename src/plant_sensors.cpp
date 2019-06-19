@@ -43,11 +43,12 @@ void PlantData::logger_message(char *outStr)
 
 void PlantMeasurement::lora_status_message(char* outStr) 
 {
-    sprintf(outStr, "%s#SI7021:%s#BI1750:%s#SM:%s",
+    sprintf(outStr, "%s#%u#SI7021:%u#BI1750:%u#SM:%u",
         MESSAGE_TYPE_STATUS,
-        si7021_status?"true":"false",
-        bh1750_status?"true":"false",
-        sm_status?"true":"false"
+        SENSOR_TYPE,
+        si7021_status,
+        bh1750_status,
+        sm_status
     );
 }
 
