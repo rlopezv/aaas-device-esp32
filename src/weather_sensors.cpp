@@ -13,6 +13,9 @@
 #define ADD_BH1750 0x23
 #define ADD_BME280 0x76
 
+const int DRY_VALUE = 4095;
+const int WATER_VALUE = 800;
+
 Adafruit_BME280 bme280; // I2C
 BH1750 bh1750p(ADD_BH1750);
 Adafruit_VEML6070 veml6070 = Adafruit_VEML6070();
@@ -134,9 +137,9 @@ void WeatherMeasurement::readBME280(WeatherData *data)
 
 void WeatherMeasurement::readRainDetector(WeatherData *data) 
 {
-  Serial.println("readRainDetector");
+    Serial.println("readRainDetector");
     int bitVal = analogRead(PIN_RAIN);
-    int rain = map(bitVal, 1800, 4056, 100, 0);
+    int rain = 100 - map(bitVal, WATER_VALUE, DRY_VALUE, 0, 100);
     data->rain = rain;
     Serial.print("Rain:");
     Serial.println(rain);

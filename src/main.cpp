@@ -3,6 +3,7 @@
 #include <hal/hal.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <SSD1306.h>
 
 #include "plant_sensors.h"
 #include "weather_sensors.h"
@@ -15,11 +16,7 @@
 
 #define PIN_SDA 21
 #define PIN_SCL 22
-#define PIN_SM 34
-#define PIN_TRIGGER 14
-#define PIN_ECHO 12
 
-#define ADD_SI7021 0x40
 #define ADD_SSD1306 0x3c
 
 static uint8_t tx_buffer[30];
@@ -67,12 +64,14 @@ DummyMeasurement measurement;
 DummyData currentData;
 DummyData *data;
 #endif
-int measurementWaitPeriod = 10 * 10 * 1000;
-int sendingWaitPeriod = 15 * 1000;
-int sendingStatusWaitPeriod = 5 * 1000;
+int measurementWaitPeriod = 4 * 60 * 1000;
+int sendingWaitPeriod = 5 * 60 * 1000;
+int sendingStatusWaitPeriod = 1 * 60 * 1000;
 unsigned long lastMeasurement = millis() - measurementWaitPeriod;
 unsigned long lastSending = millis() - sendingWaitPeriod;
 unsigned long lastStatusSending = millis() - sendingStatusWaitPeriod;
+
+SSD1306 display(ADD_SSD1306, PIN_SDA, PIN_SCL);
 
 /* Prototypes */
 void initOled();
@@ -101,6 +100,43 @@ long getValue(String data, char separator)
     value = sValue.toInt()*1000;
   } 
 	return value;
+}
+
+//Init OLED
+void initOled() 
+{
+    Serial.println("(I) - init OLED");
+    pinMode(16,OUTPUT);
+    pinMode(2,OUTPUT);
+  
+    digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
+    delay(50); 
+    digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
+    Serial.println(F("oled - ok"));
+    display.init();
+    display.flipScreenVertically();  
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.setFont(ArialMT_Plain_16);
+}
+
+void oledDisplay(String text) {
+  display.clear();
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 0, SENSOR_CLASS);
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 26, text);
+  display.display();
+}
+
+void oledDisplay(String text1, String text2) {
+  display.clear();
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 0, SENSOR_CLASS);
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 26, text1);
+  display.setFont(ArialMT_Plain_10);
+  display.drawString(0, 52, text2);
+  display.display();
 }
 
 void initQueue()
@@ -148,7 +184,7 @@ void initMeasurement()
   Serial.println("(I) - init sensors");
   measurement.init();
   if (measurement.status()) {
-Serial.println("sensors - ok");
+  Serial.println("sensors - ok");
   } else {
     Serial.println("sensors - ko");
   }
@@ -220,6 +256,7 @@ void send()
     char msg[60] = "";
     data.lora_message(msg);
     Serial.printf("(S) - message: %s\n", msg);
+    oledDisplay("Sending data",msg);
     // convert char-array to int-array
     uint8_t lmic_data[strlen(msg)];
     for (int idx = 0; idx < strlen(msg); idx++)
@@ -239,6 +276,7 @@ void send()
     char msg[60] = "";
     measurement.lora_status_message(msg);
     Serial.printf("(S) - status message: %s\n", msg);
+    oledDisplay("Sending statatus",msg);
     // convert char-array to int-array
     uint8_t lmic_data[strlen(msg)];
     for (int idx = 0; idx < strlen(msg); idx++)
@@ -253,13 +291,12 @@ void send()
   else
   {
     int remainingSeconds = (sendingWaitPeriod - elapsedTime)/1000 ;
-    int remainingStatusSeconds = (sendingWaitPeriod - elapsedTime)/1000 ;  
+    int remainingStatusSeconds = (sendingStatusWaitPeriod - elapsedStatusTime)/1000 ;  
     // nothing to send - go into next cycle
     os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(1), measureAndSend);
     Serial.printf("Next data sending in %03d seconds\r\n", remainingSeconds);
     Serial.printf("Next status sending in %03d seconds\r\n", remainingStatusSeconds);
-  }
-  Serial.println("*****************");
+ }
 }
 
 void measureAndSend(osjob_t *j)
@@ -283,6 +320,7 @@ static void process_message(u1_t *rx_buffer, int dataBeg ,int dataLen)
     Serial.println();
     String command(buffer);
     Serial.println("Received command:"+command);
+    oledDisplay("Received command", command);
     if (command.startsWith(COMMAND_SAMPLING_PERIOD)) {
       long value = getValue(command,':');
       Serial.printf("COMMAND_SAMPLING_PERIOD---->%lu",value);
@@ -297,7 +335,7 @@ static void process_message(u1_t *rx_buffer, int dataBeg ,int dataLen)
       }
     } else if (command.startsWith(COMMAND_STATUS_PERIOD)) {
       long value = getValue(command,':');
-Serial.printf("COMMAND_STATUS_PERIOD---->%lu",value);
+      Serial.printf("COMMAND_STATUS_PERIOD---->%lu",value);
       if (value>0) {
         sendingStatusWaitPeriod = value; 
       }
@@ -345,9 +383,11 @@ void onEvent(ev_t ev)
     break;
   case EV_JOINING:
     Serial.println(F("EV_JOINING"));
+    oledDisplay("Connecting to LoRa");
     break;
   case EV_JOINED:
     Serial.println(F("EV_JOINED"));
+    oledDisplay("Joined LoRa");
     // Disable link check validation (automatically enabled
     // during join, but not supported by TTN at this time).
     LMIC_setLinkCheckMode(0);
@@ -357,6 +397,7 @@ void onEvent(ev_t ev)
     break;
   case EV_JOIN_FAILED:
     Serial.println(F("EV_JOIN_FAILED"));
+    oledDisplay("Joining LoRa failed");
     break;
   case EV_REJOIN_FAILED:
     Serial.println(F("EV_REJOIN_FAILED"));
@@ -366,6 +407,7 @@ void onEvent(ev_t ev)
     if (LMIC.txrxFlags & TXRX_ACK)
     {
       Serial.println(F("(R) - received ack"));
+      oledDisplay("Send complete");
       messageSent(true);
     }
     if (LMIC.dataLen)
@@ -410,6 +452,7 @@ void onEvent(ev_t ev)
 void displayQueue()
 {
   Serial.println("queue");
+
   //u8x8.printf("queue %03d", uxQueueMessagesWaiting(xQueue));
 }
 
@@ -553,10 +596,12 @@ void setup()
 
   Serial.println(F("(I) ================================"));
   Serial.println(F("(I) - init started"));
+  initOled();
   initLmic();
   initQueue();
   initMeasurement();
   os_setCallback(&sendjob, measureAndSend);
+  oledDisplay("Init completed");
 }
 
 void loop()

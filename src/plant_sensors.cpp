@@ -16,6 +16,9 @@
 BH1750 bh1750(ADD_BH1750);
 HTU21D si7021;
 
+const int AIR_VALUE = 3400;
+const int WATER_VALUE = 1200;
+
 bool si7021_status = true;
 bool bh1750_status = true;
 bool sm_status = true;
@@ -113,58 +116,12 @@ void PlantMeasurement::readSI7021(PlantData *data) {
 
 }
 
-// void PlantMeasurement::readSI7021(PlantData *data)
-// {
-//     Serial.println("Read SI7021");
-//     unsigned int value[2];
-//     Wire.beginTransmission(ADD_SI7021);
-//     //Send humidity measurement command
-//     Wire.write(0xF5);
-//     Wire.endTransmission();
-//     delay(500);
-
-//     // Request 2 bytes of data
-//     Wire.requestFrom(ADD_SI7021, 2);
-//     // Read 2 bytes of data to get humidity
-//     if (Wire.available() == 2)
-//     {
-//         value[0] = Wire.read();
-//         value[1] = Wire.read();
-//     }
-//     // Convert the data
-//     float humidity = ((value[0] * 256.0) + value[1]);
-//     humidity = ((125 * humidity) / 65536.0) - 6;
-//     data->humidity = humidity;
-//     Serial.print("HUMIDITY:");
-//     Serial.println(humidity);
-//     Wire.beginTransmission(ADD_SI7021);
-//     // Send temperature measurement command
-//     Wire.write(0xF3);
-//     Wire.endTransmission();
-//     delay(500);
-
-//     // Request 2 bytes of data
-//     Wire.requestFrom(ADD_SI7021, 2);
-
-//     // Read 2 bytes of data for temperature
-//     if (Wire.available() == 2)
-//     {
-//         value[0] = Wire.read();
-//         value[1] = Wire.read();
-//     }
-//     float temp = ((value[0] * 256.0) + value[1]);
-//     float celsTemp = ((175.72 * temp) / 65536.0) - 46.85;
-
-//     data->temperature = celsTemp;
-//     Serial.print("TEMP:");
-//     Serial.println(celsTemp);
-// }
-
 void PlantMeasurement::readSM(PlantData *data)
 {
     Serial.println("Read SM");
-    int bitVal = analogRead(PIN_SM);
-    int sm = map(bitVal, 1800, 4056, 100, 0);
+   int bitVal = analogRead(PIN_SM);
+    Serial.println(bitVal);
+    int sm = 100 - map(bitVal, WATER_VALUE, AIR_VALUE, 0, 100);
     data->sm = sm;
     Serial.print("SM:");
     Serial.println(sm);
