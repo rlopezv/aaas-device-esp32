@@ -87,7 +87,7 @@ void WeatherMeasurement::init()
 bool WeatherMeasurement::initBH1750()
 {
     Serial.println("Init BH1750");
-    return bh1750p.begin(BH1750::ONE_TIME_HIGH_RES_MODE);
+    return bh1750p.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
 }
 
 bool WeatherMeasurement::initVEML6070() 

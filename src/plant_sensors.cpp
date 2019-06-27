@@ -103,7 +103,7 @@ bool PlantMeasurement::initSM()
 bool PlantMeasurement::initBH1750()
 {
     Serial.println("Init BH1750");
-    return bh1750.begin(BH1750::ONE_TIME_HIGH_RES_MODE);
+    return bh1750.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
 }
 
 void PlantMeasurement::readSI7021(PlantData *data) {
