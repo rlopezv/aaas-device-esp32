@@ -11,8 +11,8 @@
 #include "globals.h"
 
 
-#define WEATHER_SENSORS 1
-#define PLANT_SENSORS 0
+#define WEATHER_SENSORS 0
+#define PLANT_SENSORS 1
 
 #define PIN_SDA 21
 #define PIN_SCL 22
@@ -64,9 +64,9 @@ DummyMeasurement measurement;
 DummyData currentData;
 DummyData *data;
 #endif
-int measurementWaitPeriod = 4 * 60 * 1000;
+int measurementWaitPeriod = 5 * 60 * 1000;
 int sendingWaitPeriod = 5 * 60 * 1000;
-int sendingStatusWaitPeriod = 1 * 60 * 1000;
+int sendingStatusWaitPeriod = 2 * 60 * 1000;
 unsigned long lastMeasurement = millis() - measurementWaitPeriod;
 unsigned long lastSending = millis() - sendingWaitPeriod;
 unsigned long lastStatusSending = millis() - sendingStatusWaitPeriod;

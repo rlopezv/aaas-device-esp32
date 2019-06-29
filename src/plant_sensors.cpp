@@ -16,7 +16,7 @@
 BH1750 bh1750(ADD_BH1750);
 HTU21D si7021;
 
-const int AIR_VALUE = 3400;
+const int AIR_VALUE = 3550;
 const int WATER_VALUE = 1200;
 
 bool si7021_status = true;

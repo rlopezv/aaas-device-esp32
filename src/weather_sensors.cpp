@@ -82,6 +82,11 @@ void WeatherMeasurement::init()
     bh1750p_status = initBH1750();
     rain_status = initRainDetector();
     veml6070_status = initVEML6070();
+    Serial.printf("BME280:%i\r\n",bme280_status);
+    Serial.printf("BH1750:%i\r\n",bh1750p_status);
+    Serial.printf("VEML6070:%i\r\n",veml6070_status);
+    Serial.printf("rain:%i\r\n",rain_status);
+
 }
 
 bool WeatherMeasurement::initBH1750()
